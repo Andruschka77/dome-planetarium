@@ -1,0 +1,426 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:storm="http://storm.bpmn2.ru/ns" id="Definitions_Planetarium" targetNamespace="http://bpmn.io/schema/bpmn" exporter="StormBPMN" exporterVersion="2.0">
+  <bpmn:collaboration id="Collaboration_1">
+    <bpmn:participant id="Participant_Planetarium" name="Купольный проекционный комплекс планетария" processRef="Process_Planetarium" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_Planetarium" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="Lane_ContentManager" name="Контент-менеджер">
+        <bpmn:flowNodeRef>Task_LoadMedia</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>StartEvent_ScheduleApproved</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Reencode</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Engineer" name="Дежурный инженер">
+        <bpmn:flowNodeRef>Task_HardwareAdjust</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_StartDiag</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ApproveProfile</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Operator" name="Оператор сеанса">
+        <bpmn:flowNodeRef>Task_StartSession</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_Join</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_LoadScript</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_TestRun</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_System" name="Система управления проекциями">
+        <bpmn:flowNodeRef>Task_LogTelemetry</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_Split</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_MediaValid</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ValidateMedia</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Playback</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_SessionDone</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_CalcWarpBlend</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_CalibrationOk</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:userTask id="Task_HardwareAdjust" name="Произвести аппаратную юстировку оптических осей">
+      <bpmn:incoming>Flow_CalibError</bpmn:incoming>
+      <bpmn:outgoing>Flow_LoopAdjust</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="Task_LogTelemetry" name="Зафиксировать телеметрию сеанса и сформировать отчет">
+      <bpmn:incoming>Flow_ToTelemetry</bpmn:incoming>
+      <bpmn:outgoing>Flow_ToEnd</bpmn:outgoing>
+      <bpmn:dataOutputAssociation id="DataOutputAssociation_1daztfq">
+        <bpmn:targetRef>DORef_TelemetryLog</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_ScheduleApproved" targetRef="Task_LoadMedia" />
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_LoadMedia" targetRef="Task_ValidateMedia" />
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Task_ValidateMedia" targetRef="Gateway_MediaValid" />
+    <bpmn:sequenceFlow id="Flow_MediaInvalid" name="Нет (ошибка формата)" sourceRef="Gateway_MediaValid" targetRef="Task_Reencode" />
+    <bpmn:sequenceFlow id="Flow_LoopReencode" sourceRef="Task_Reencode" targetRef="Task_LoadMedia" />
+    <bpmn:sequenceFlow id="Flow_MediaValid" name="Да (валиден)" sourceRef="Gateway_MediaValid" targetRef="Gateway_Split" storm:LabelWidth="65" storm:LabelHeight="14" />
+    <bpmn:sequenceFlow id="Flow_ToEngineer" sourceRef="Gateway_Split" targetRef="Task_StartDiag" />
+    <bpmn:sequenceFlow id="Flow_ToOperator" sourceRef="Gateway_Split" targetRef="Task_LoadScript" />
+    <bpmn:sequenceFlow id="Flow_ToCalcWarp" sourceRef="Task_StartDiag" targetRef="Task_LoadScript" />
+    <bpmn:sequenceFlow id="Flow_ToCalibGateway" sourceRef="Task_CalcWarpBlend" targetRef="Gateway_CalibrationOk" />
+    <bpmn:sequenceFlow id="Flow_CalibError" name="Нет (дрейф &#62; 2 px)" sourceRef="Gateway_CalibrationOk" targetRef="Task_HardwareAdjust" />
+    <bpmn:sequenceFlow id="Flow_LoopAdjust" sourceRef="Task_HardwareAdjust" targetRef="Task_StartDiag" />
+    <bpmn:sequenceFlow id="Flow_CalibOk" name="Да (RMS ≤ 2 px)" sourceRef="Gateway_CalibrationOk" targetRef="Task_ApproveProfile" storm:LabelWidth="78" storm:LabelHeight="14" />
+    <bpmn:sequenceFlow id="Flow_EngDone" sourceRef="Task_ApproveProfile" targetRef="Gateway_Join" />
+    <bpmn:sequenceFlow id="Flow_ToTestRun" sourceRef="Task_LoadScript" targetRef="Task_TestRun" />
+    <bpmn:sequenceFlow id="Flow_OpDone" sourceRef="Task_TestRun" targetRef="Gateway_Join" />
+    <bpmn:sequenceFlow id="Flow_ToStart" sourceRef="Gateway_Join" targetRef="Task_StartSession" />
+    <bpmn:sequenceFlow id="Flow_ToPlayback" sourceRef="Task_StartSession" targetRef="Task_Playback" />
+    <bpmn:sequenceFlow id="Flow_ToTelemetry" sourceRef="Task_Playback" targetRef="Task_LogTelemetry" />
+    <bpmn:sequenceFlow id="Flow_ToEnd" sourceRef="Task_LogTelemetry" targetRef="EndEvent_SessionDone" />
+    <bpmn:userTask id="Task_LoadMedia" name="Загрузить медиапакет программы на медиасервер">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:incoming>Flow_LoopReencode</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+      <bpmn:property id="Property_0i7u4wg" name="__targetRef_placeholder" />
+      <bpmn:dataInputAssociation id="DataInputAssociation_1jgen97">
+        <bpmn:sourceRef>DORef_Schedule</bpmn:sourceRef>
+        <bpmn:targetRef>Property_0i7u4wg</bpmn:targetRef>
+      </bpmn:dataInputAssociation>
+      <bpmn:dataOutputAssociation id="DataOutputAssociation_0faqc31">
+        <bpmn:targetRef>DORef_MediaPackage</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+    </bpmn:userTask>
+    <bpmn:startEvent id="StartEvent_ScheduleApproved" name="Суточное расписание сеансов утверждено">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="Task_Reencode" name="Перекодировать медиаресурс и исправить метаданные">
+      <bpmn:incoming>Flow_MediaInvalid</bpmn:incoming>
+      <bpmn:outgoing>Flow_LoopReencode</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_1ynnro6" sourceRef="Task_LoadScript" targetRef="Task_CalcWarpBlend" />
+    <bpmn:userTask id="Task_StartDiag" name="Запустить предсеансовую диагностику проекторов">
+      <bpmn:incoming>Flow_ToEngineer</bpmn:incoming>
+      <bpmn:incoming>Flow_LoopAdjust</bpmn:incoming>
+      <bpmn:outgoing>Flow_ToCalcWarp</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Task_LoadScript" name="Загрузить сценарий программы в плейлист показа">
+      <bpmn:incoming>Flow_ToOperator</bpmn:incoming>
+      <bpmn:incoming>Flow_ToCalcWarp</bpmn:incoming>
+      <bpmn:outgoing>Flow_ToTestRun</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1ynnro6</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:parallelGateway id="Gateway_Split" name="Разделение регламента">
+      <bpmn:incoming>Flow_MediaValid</bpmn:incoming>
+      <bpmn:outgoing>Flow_ToEngineer</bpmn:outgoing>
+      <bpmn:outgoing>Flow_ToOperator</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:exclusiveGateway id="Gateway_MediaValid" name="Медиафайлы валидны?">
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+      <bpmn:outgoing>Flow_MediaInvalid</bpmn:outgoing>
+      <bpmn:outgoing>Flow_MediaValid</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="Task_ValidateMedia" name="Валидировать медиапакет программы">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+      <bpmn:dataOutputAssociation id="DataOutputAssociation_0yn4bk9">
+        <bpmn:targetRef>DORef_ValidationReport</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="Task_StartSession" name="Подать команду старта сеанса">
+      <bpmn:incoming>Flow_ToStart</bpmn:incoming>
+      <bpmn:outgoing>Flow_ToPlayback</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Task_ApproveProfile" name="Утвердить применение профиля калибровки">
+      <bpmn:incoming>Flow_CalibOk</bpmn:incoming>
+      <bpmn:outgoing>Flow_EngDone</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:parallelGateway id="Gateway_Join" name="Синхронизация готовности">
+      <bpmn:incoming>Flow_EngDone</bpmn:incoming>
+      <bpmn:incoming>Flow_OpDone</bpmn:incoming>
+      <bpmn:outgoing>Flow_ToStart</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:dataObjectReference id="DORef_CalibrationProfile" name="Обновленный профиль калибровки" dataObjectRef="DO_CalibrationProfile" />
+    <bpmn:dataObject id="DO_CalibrationProfile" />
+    <bpmn:dataObjectReference id="DORef_MediaPackage" name="Медиапакет программы (Dome Master)" dataObjectRef="DO_MediaPackage" />
+    <bpmn:dataObject id="DO_MediaPackage" />
+    <bpmn:dataObjectReference id="DORef_Schedule" name="Суточное расписание" dataObjectRef="DO_Schedule" />
+    <bpmn:dataObject id="DO_Schedule" />
+    <bpmn:serviceTask id="Task_Playback" name="Синхронно воспроизвести многоканальный медиапоток с наложением шейдеров деформации">
+      <bpmn:incoming>Flow_ToPlayback</bpmn:incoming>
+      <bpmn:outgoing>Flow_ToTelemetry</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="EndEvent_SessionDone" name="Полнокупольный показ завершен, телеметрия сохранена в БД">
+      <bpmn:incoming>Flow_ToEnd</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:dataObjectReference id="DORef_TelemetryLog" name="Журнал телеметрии сеанса" dataObjectRef="DO_TelemetryLog" />
+    <bpmn:dataObject id="DO_TelemetryLog" />
+    <bpmn:dataObjectReference id="DORef_ValidationReport" name="Протокол валидации" dataObjectRef="DO_ValidationReport" />
+    <bpmn:dataObject id="DO_ValidationReport" />
+    <bpmn:userTask id="Task_TestRun" name="Провести тестовый предстартовый прогон звука и проекции">
+      <bpmn:incoming>Flow_ToTestRun</bpmn:incoming>
+      <bpmn:outgoing>Flow_OpDone</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="Task_CalcWarpBlend" name="Рассчитать сетку геометрической деформации и маски сшивки">
+      <bpmn:incoming>Flow_1ynnro6</bpmn:incoming>
+      <bpmn:outgoing>Flow_ToCalibGateway</bpmn:outgoing>
+      <bpmn:dataOutputAssociation id="DataOutputAssociation_00dip7n">
+        <bpmn:targetRef>DORef_CalibrationProfile</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="Gateway_CalibrationOk" name="Погрешность оптического сведения в норме?">
+      <bpmn:incoming>Flow_ToCalibGateway</bpmn:incoming>
+      <bpmn:outgoing>Flow_CalibError</bpmn:outgoing>
+      <bpmn:outgoing>Flow_CalibOk</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Planetarium">
+    <bpmndi:BPMNPlane id="BPMNPlane_Planetarium" bpmnElement="Collaboration_1">
+      <bpmndi:BPMNShape id="Participant_Planetarium_di" bpmnElement="Participant_Planetarium" isHorizontal="true">
+        <dc:Bounds x="160" y="-30" width="2240" height="980" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_System_di" bpmnElement="Lane_System" isHorizontal="true">
+        <dc:Bounds x="190" y="680" width="2210" height="270" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Operator_di" bpmnElement="Lane_Operator" isHorizontal="true">
+        <dc:Bounds x="190" y="480" width="2210" height="200" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Engineer_di" bpmnElement="Lane_Engineer" isHorizontal="true">
+        <dc:Bounds x="190" y="280" width="2210" height="200" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_ContentManager_di" bpmnElement="Lane_ContentManager" isHorizontal="true">
+        <dc:Bounds x="190" y="-30" width="2210" height="310" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_HardwareAdjust_di" bpmnElement="Task_HardwareAdjust">
+        <dc:Bounds x="1205" y="340" width="130" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_LogTelemetry_di" bpmnElement="Task_LogTelemetry">
+        <dc:Bounds x="2015" y="740" width="130" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_LoadMedia_di" bpmnElement="Task_LoadMedia">
+        <dc:Bounds x="365" y="110" width="130" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="StartEvent_ScheduleApproved_di" bpmnElement="StartEvent_ScheduleApproved">
+        <dc:Bounds x="262" y="132" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="250" y="175" width="61" height="48" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Reencode_di" bpmnElement="Task_Reencode">
+        <dc:Bounds x="645" y="110" width="130" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_StartDiag_di" bpmnElement="Task_StartDiag">
+        <dc:Bounds x="805" y="340" width="130" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_LoadScript_di" bpmnElement="Task_LoadScript">
+        <dc:Bounds x="950" y="530" width="143" height="90" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Split_di" bpmnElement="Gateway_Split">
+        <dc:Bounds x="845" y="775" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="841" y="832" width="59" height="24" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_MediaValid_di" bpmnElement="Gateway_MediaValid" isMarkerVisible="true">
+        <dc:Bounds x="685" y="775" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="678" y="832" width="65" height="24" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ValidateMedia_di" bpmnElement="Task_ValidateMedia">
+        <dc:Bounds x="365" y="760" width="130" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_StartSession_di" bpmnElement="Task_StartSession">
+        <dc:Bounds x="1765" y="540" width="130" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ApproveProfile_di" bpmnElement="Task_ApproveProfile">
+        <dc:Bounds x="1455" y="340" width="130" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Join_di" bpmnElement="Gateway_Join">
+        <dc:Bounds x="1635" y="555" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1622" y="612" width="77" height="24" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DORef_CalibrationProfile_di" bpmnElement="DORef_CalibrationProfile">
+        <dc:Bounds x="992" y="865" width="36" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="976" y="825" width="69" height="36" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DORef_MediaPackage_di" bpmnElement="DORef_MediaPackage">
+        <dc:Bounds x="512" y="5" width="36" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="495" y="59" width="71" height="36" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DORef_Schedule_di" bpmnElement="DORef_Schedule">
+        <dc:Bounds x="302" y="5" width="36" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="291" y="59" width="59" height="24" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Playback_di" bpmnElement="Task_Playback">
+        <dc:Bounds x="1730" y="740" width="170" height="100" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_SessionDone_di" bpmnElement="EndEvent_SessionDone">
+        <dc:Bounds x="2212" y="762" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2188" y="805" width="85" height="48" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DORef_TelemetryLog_di" bpmnElement="DORef_TelemetryLog">
+        <dc:Bounds x="1942" y="875" width="36" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1930" y="835" width="60" height="36" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DORef_ValidationReport_di" bpmnElement="DORef_ValidationReport">
+        <dc:Bounds x="522" y="865" width="36" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="514" y="835" width="54" height="24" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_TestRun_di" bpmnElement="Task_TestRun">
+        <dc:Bounds x="1147" y="530" width="145" height="90" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_CalcWarpBlend_di" bpmnElement="Task_CalcWarpBlend">
+        <dc:Bounds x="1087" y="737" width="145" height="85" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_CalibrationOk_di" bpmnElement="Gateway_CalibrationOk" isMarkerVisible="true">
+        <dc:Bounds x="1405" y="752" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1397" y="809" width="67" height="48" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1_di" bpmnElement="Flow_1">
+        <di:waypoint x="298" y="150" />
+        <di:waypoint x="365" y="150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_2_di" bpmnElement="Flow_2">
+        <di:waypoint x="430" y="190" />
+        <di:waypoint x="430" y="760" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_3_di" bpmnElement="Flow_3">
+        <di:waypoint x="495" y="800" />
+        <di:waypoint x="685" y="800" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_MediaInvalid_di" bpmnElement="Flow_MediaInvalid">
+        <di:waypoint x="710" y="775" />
+        <di:waypoint x="710" y="190" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="719" y="438" width="62" height="24" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_LoopReencode_di" bpmnElement="Flow_LoopReencode">
+        <di:waypoint x="645" y="150" />
+        <di:waypoint x="495" y="150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_MediaValid_di" bpmnElement="Flow_MediaValid">
+        <di:waypoint x="735" y="800" />
+        <di:waypoint x="845" y="800" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="758" y="782" width="65" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ToEngineer_di" bpmnElement="Flow_ToEngineer">
+        <di:waypoint x="870" y="775" />
+        <di:waypoint x="870" y="420" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ToOperator_di" bpmnElement="Flow_ToOperator">
+        <di:waypoint x="870" y="775" />
+        <di:waypoint x="870" y="720" />
+        <di:waypoint x="1028" y="720" />
+        <di:waypoint x="1028" y="620" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ToCalcWarp_di" bpmnElement="Flow_ToCalcWarp">
+        <di:waypoint x="935" y="380" />
+        <di:waypoint x="1028" y="380" />
+        <di:waypoint x="1028" y="530" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ToCalibGateway_di" bpmnElement="Flow_ToCalibGateway">
+        <di:waypoint x="1232" y="777" />
+        <di:waypoint x="1405" y="777" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_CalibError_di" bpmnElement="Flow_CalibError">
+        <di:waypoint x="1430" y="752" />
+        <di:waypoint x="1430" y="640" />
+        <di:waypoint x="1370" y="640" />
+        <di:waypoint x="1370" y="380" />
+        <di:waypoint x="1335" y="380" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1372" y="518" width="75" height="24" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_LoopAdjust_di" bpmnElement="Flow_LoopAdjust">
+        <di:waypoint x="1205" y="380" />
+        <di:waypoint x="935" y="380" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_CalibOk_di" bpmnElement="Flow_CalibOk">
+        <di:waypoint x="1430" y="752" />
+        <di:waypoint x="1430" y="640" />
+        <di:waypoint x="1520" y="640" />
+        <di:waypoint x="1520" y="420" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1521" y="513" width="78" height="12" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_EngDone_di" bpmnElement="Flow_EngDone">
+        <di:waypoint x="1585" y="380" />
+        <di:waypoint x="1660" y="380" />
+        <di:waypoint x="1660" y="555" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ToTestRun_di" bpmnElement="Flow_ToTestRun">
+        <di:waypoint x="1093" y="580" />
+        <di:waypoint x="1147" y="580" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_OpDone_di" bpmnElement="Flow_OpDone">
+        <di:waypoint x="1292" y="580" />
+        <di:waypoint x="1635" y="580" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ToStart_di" bpmnElement="Flow_ToStart">
+        <di:waypoint x="1685" y="580" />
+        <di:waypoint x="1765" y="580" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ToPlayback_di" bpmnElement="Flow_ToPlayback">
+        <di:waypoint x="1830" y="620" />
+        <di:waypoint x="1830" y="740" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ToTelemetry_di" bpmnElement="Flow_ToTelemetry">
+        <di:waypoint x="1900" y="780" />
+        <di:waypoint x="2015" y="780" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ToEnd_di" bpmnElement="Flow_ToEnd">
+        <di:waypoint x="2145" y="780" />
+        <di:waypoint x="2212" y="780" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ynnro6_di" bpmnElement="Flow_1ynnro6">
+        <di:waypoint x="1028" y="620" />
+        <di:waypoint x="1028" y="777" />
+        <di:waypoint x="1087" y="777" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="DataOutputAssociation_1daztfq_di" bpmnElement="DataOutputAssociation_1daztfq">
+        <di:waypoint x="2039" y="820" />
+        <di:waypoint x="1978" y="880" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="DataInputAssociation_1jgen97_di" bpmnElement="DataInputAssociation_1jgen97">
+        <di:waypoint x="337" y="55" />
+        <di:waypoint x="374" y="110" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="DataOutputAssociation_0faqc31_di" bpmnElement="DataOutputAssociation_0faqc31">
+        <di:waypoint x="464" y="110" />
+        <di:waypoint x="512" y="54" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="DataOutputAssociation_0yn4bk9_di" bpmnElement="DataOutputAssociation_0yn4bk9">
+        <di:waypoint x="475" y="840" />
+        <di:waypoint x="522" y="882" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="DataOutputAssociation_00dip7n_di" bpmnElement="DataOutputAssociation_00dip7n">
+        <di:waypoint x="1097" y="822" />
+        <di:waypoint x="1028" y="879" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
