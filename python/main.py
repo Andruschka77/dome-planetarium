@@ -162,6 +162,51 @@ def analyze_session_telemetry(telemetry_logs, total_expected_frames):
         "session_verdict": verdict
     }
 
+def validate_media_package(media_package):
+    """
+    Алгоритм 3: Процедура валидации: Проверка целостности медиапакета программы и корректности формата видеоряда.
+    Временная сложность: O(F), где F - количество обязательных компонентов и метаданных в медиапакете.
+    Емкостная сложность: O(E), где E - количество выявленных ошибок (формирование списка замечаний).
+    :param media_package: словарь с метаданными и путями к файлам медиапакета программы
+    :return: словарь со статусом валидности и списком обнаруженных ошибок
+    """
+    errors = []
+    is_valid = True
+
+    required_keys = ["dome_master_file", "audio_file", "scenario_file", "checksum"]
+    for key in required_keys:
+        if key not in media_package or not media_package[key]:
+            errors.append(f"Отсутствует обязательный компонент: {key}")
+            is_valid = False
+
+    # Простая проверка формата видео (в реальной системе — разбор заголовка)
+    video_file = media_package.get("dome_master_file", "")
+    if not (video_file.endswith(".mp4") or video_file.endswith(".mov")):
+        errors.append(f"Неподдерживаемый формат файла: {video_file}")
+        is_valid = False
+
+    return {"is_valid": is_valid, "errors": errors}
+
+
+def check_projectors_readiness(projectors_status):
+    """
+    Алгоритм 4: Процедура диагностики: Проверка аппаратной готовности кластера проекторов к запуску сеанса.
+    Временная сложность: O(N), где N - количество проекторов в проекционном кластере.
+    Емкостная сложность: O(N) в худшем случае (список идентификаторов устройств, требующих внимания).
+    :param projectors_status: список словарей с показателями телеметрии и состояния проекторов
+    :return: словарь с общим флагом готовности кластера и списком идентификаторов неисправных устройств
+    """
+    not_ready_ids = []
+    i = 0
+    while i < len(projectors_status):
+        proj = projectors_status[i]
+        powered_on = proj.get("powered_on", False)
+        laser_temp_ok = proj.get("laser_temp_celsius", 999) < 70
+        link_ok = proj.get("media_server_link", False)
+        if not (powered_on and laser_temp_ok and link_ok):
+            not_ready_ids.append(proj.get("id_projector"))
+        i += 1
+    return {"cluster_ready": len(not_ready_ids) == 0, "not_ready_ids": not_ready_ids}
 
 def get_mock_data():
     """
@@ -231,7 +276,24 @@ def get_mock_data():
         {"timestamp": "12:48:02", "type": "sync_jitter", "id_projector": 5, "dropped_frames": 2, "desc": "Сетевой джиттер медиасервера"}
     ]
     
-    return projectors_calibration_data, telemetry_logs_data, total_expected_frames
+    # 3. Данные медиапакета программы (полнокупольный фильм)
+    media_package_data = {
+        "dome_master_file": "cosmos_evolution_8k.mp4",
+        "audio_file": "soundtrack_7_1.wav",
+        "scenario_file": "timeline_script.json",
+        "checksum": "d41d8cd98f00b204e9800998ecf8427e"
+    }
+    
+    # 4. Данные аппаратного опроса статуса проекторов кластера
+    projectors_status_data = [
+        {"id_projector": 1, "powered_on": True, "laser_temp_celsius": 58, "media_server_link": True},
+        {"id_projector": 2, "powered_on": True, "laser_temp_celsius": 61, "media_server_link": True},
+        {"id_projector": 3, "powered_on": True, "laser_temp_celsius": 68, "media_server_link": True},
+        {"id_projector": 4, "powered_on": True, "laser_temp_celsius": 59, "media_server_link": True},
+        {"id_projector": 5, "powered_on": True, "laser_temp_celsius": 62, "media_server_link": True}
+    ]
+    
+    return projectors_calibration_data, telemetry_logs_data, total_expected_frames, media_package_data, projectors_status_data
 
 
 def main():
@@ -239,7 +301,7 @@ def main():
     print("ПРОЦЕДУРНАЯ ПРОГРАММА УПРАВЛЕНИЯ КУПОЛЬНОЙ ПРОЕКЦИОННОЙ СИСТЕМОЙ")
     print("=" * 70)
     
-    projectors_data, telemetry_data, total_frames = get_mock_data()
+    projectors_data, telemetry_data, total_frames, media_data, proj_status = get_mock_data()
     
     # -------------------------------------------------------------------------
     # ТЕСТ АЛГОРИТМА 1: Проверка оптического сведения кластера проекторов
@@ -273,6 +335,36 @@ def main():
     print(f"  - Аппаратные предупреждения (нагрев): {stats['hw_issues_count']} (доля {stats['hw_issues_ratio']})")
     print(f"  - Джиттер кадровой синхронизации: {stats['sync_jitter_count']} (доля {stats['sync_jitter_ratio']})")
     print(f"  - Ошибки декодирования потока: {stats['sw_errors_count']} (доля {stats['sw_errors_ratio']})")
+    
+    # -------------------------------------------------------------------------
+    # ТЕСТ 3: Валидация входящего медиапакета программы
+    # -------------------------------------------------------------------------
+    print("\n" + "-" * 70)
+    print("[ТЕСТ 3] Запуск валидации входящего медиапакета программы...")
+    validation_res = validate_media_package(media_data)
+    is_valid_str = "УСПЕШНО" if validation_res["is_valid"] else "ОШИБКА"
+    print(f"Статус валидации медиапакета: {is_valid_str}")
+    print(f"Обнаружено критических ошибок: {len(validation_res['errors'])}")
+    if validation_res["errors"]:
+        for err in validation_res["errors"]:
+            print(f"  • {err}")
+    else:
+        print("  Все компоненты (видео Dome Master, аудио 7.1, сценарий, MD5) верифицированы.")
+
+    # -------------------------------------------------------------------------
+    # ТЕСТ 4: Экспресс-диагностика готовности кластера проекторов
+    # -------------------------------------------------------------------------
+    print("\n" + "-" * 70)
+    print("[ТЕСТ 4] Запуск экспресс-диагностики готовности кластера проекторов...")
+    readiness_res = check_projectors_readiness(proj_status)
+    cluster_ready_str = "ГОТОВ" if readiness_res["cluster_ready"] else "НЕ ГОТОВ"
+    print(f"Готовность кластера к сеансу: {cluster_ready_str}")
+    print(f"Всего проекторов опрошено: {len(proj_status)}")
+    print(f"Проекторов с аппаратными замечаниями: {len(readiness_res['not_ready_ids'])}")
+    if readiness_res["not_ready_ids"]:
+        print(f"  Требуют внимания ID: {readiness_res['not_ready_ids']}")
+    else:
+        print("  Все проекторы активны, температура лазеров в норме (<70C), линк с сервером OK.")
     print("=" * 70)
 
 

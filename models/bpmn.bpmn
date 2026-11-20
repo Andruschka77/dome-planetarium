@@ -12,8 +12,8 @@
       </bpmn:lane>
       <bpmn:lane id="Lane_Engineer" name="Дежурный инженер">
         <bpmn:flowNodeRef>Task_HardwareAdjust</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Task_StartDiag</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Task_ApproveProfile</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_StartDiag</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_Operator" name="Оператор сеанса">
         <bpmn:flowNodeRef>Task_StartSession</bpmn:flowNodeRef>
@@ -51,7 +51,6 @@
     <bpmn:sequenceFlow id="Flow_MediaValid" name="Да (валиден)" sourceRef="Gateway_MediaValid" targetRef="Gateway_Split" storm:LabelWidth="65" storm:LabelHeight="14" />
     <bpmn:sequenceFlow id="Flow_ToEngineer" sourceRef="Gateway_Split" targetRef="Task_StartDiag" />
     <bpmn:sequenceFlow id="Flow_ToOperator" sourceRef="Gateway_Split" targetRef="Task_LoadScript" />
-    <bpmn:sequenceFlow id="Flow_ToCalcWarp" sourceRef="Task_StartDiag" targetRef="Task_LoadScript" />
     <bpmn:sequenceFlow id="Flow_ToCalibGateway" sourceRef="Task_CalcWarpBlend" targetRef="Gateway_CalibrationOk" />
     <bpmn:sequenceFlow id="Flow_CalibError" name="Нет (дрейф &#62; 2 px)" sourceRef="Gateway_CalibrationOk" targetRef="Task_HardwareAdjust" />
     <bpmn:sequenceFlow id="Flow_LoopAdjust" sourceRef="Task_HardwareAdjust" targetRef="Task_StartDiag" />
@@ -83,17 +82,9 @@
       <bpmn:incoming>Flow_MediaInvalid</bpmn:incoming>
       <bpmn:outgoing>Flow_LoopReencode</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:sequenceFlow id="Flow_1ynnro6" sourceRef="Task_LoadScript" targetRef="Task_CalcWarpBlend" />
-    <bpmn:userTask id="Task_StartDiag" name="Запустить предсеансовую диагностику проекторов">
-      <bpmn:incoming>Flow_ToEngineer</bpmn:incoming>
-      <bpmn:incoming>Flow_LoopAdjust</bpmn:incoming>
-      <bpmn:outgoing>Flow_ToCalcWarp</bpmn:outgoing>
-    </bpmn:userTask>
     <bpmn:userTask id="Task_LoadScript" name="Загрузить сценарий программы в плейлист показа">
       <bpmn:incoming>Flow_ToOperator</bpmn:incoming>
-      <bpmn:incoming>Flow_ToCalcWarp</bpmn:incoming>
       <bpmn:outgoing>Flow_ToTestRun</bpmn:outgoing>
-      <bpmn:outgoing>Flow_1ynnro6</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:parallelGateway id="Gateway_Split" name="Разделение регламента">
       <bpmn:incoming>Flow_MediaValid</bpmn:incoming>
@@ -147,7 +138,7 @@
       <bpmn:outgoing>Flow_OpDone</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:serviceTask id="Task_CalcWarpBlend" name="Рассчитать сетку геометрической деформации и маски сшивки">
-      <bpmn:incoming>Flow_1ynnro6</bpmn:incoming>
+      <bpmn:incoming>Flow_01gea9x</bpmn:incoming>
       <bpmn:outgoing>Flow_ToCalibGateway</bpmn:outgoing>
       <bpmn:dataOutputAssociation id="DataOutputAssociation_00dip7n">
         <bpmn:targetRef>DORef_CalibrationProfile</bpmn:targetRef>
@@ -158,6 +149,12 @@
       <bpmn:outgoing>Flow_CalibError</bpmn:outgoing>
       <bpmn:outgoing>Flow_CalibOk</bpmn:outgoing>
     </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_01gea9x" sourceRef="Task_StartDiag" targetRef="Task_CalcWarpBlend" />
+    <bpmn:userTask id="Task_StartDiag" name="Запустить предсеансовую диагностику проекторов">
+      <bpmn:incoming>Flow_ToEngineer</bpmn:incoming>
+      <bpmn:incoming>Flow_LoopAdjust</bpmn:incoming>
+      <bpmn:outgoing>Flow_01gea9x</bpmn:outgoing>
+    </bpmn:userTask>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_Planetarium">
     <bpmndi:BPMNPlane id="BPMNPlane_Planetarium" bpmnElement="Collaboration_1">
@@ -201,10 +198,6 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Task_Reencode_di" bpmnElement="Task_Reencode">
         <dc:Bounds x="645" y="110" width="130" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Task_StartDiag_di" bpmnElement="Task_StartDiag">
-        <dc:Bounds x="805" y="340" width="130" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Task_LoadScript_di" bpmnElement="Task_LoadScript">
@@ -295,6 +288,10 @@
           <dc:Bounds x="1397" y="809" width="67" height="48" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_StartDiag_di" bpmnElement="Task_StartDiag">
+        <dc:Bounds x="842" y="340" width="130" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_1_di" bpmnElement="Flow_1">
         <di:waypoint x="298" y="150" />
         <di:waypoint x="365" y="150" />
@@ -332,13 +329,8 @@
       <bpmndi:BPMNEdge id="Flow_ToOperator_di" bpmnElement="Flow_ToOperator">
         <di:waypoint x="870" y="775" />
         <di:waypoint x="870" y="720" />
-        <di:waypoint x="1028" y="720" />
-        <di:waypoint x="1028" y="620" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_ToCalcWarp_di" bpmnElement="Flow_ToCalcWarp">
-        <di:waypoint x="935" y="380" />
-        <di:waypoint x="1028" y="380" />
-        <di:waypoint x="1028" y="530" />
+        <di:waypoint x="990" y="720" />
+        <di:waypoint x="990" y="620" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_ToCalibGateway_di" bpmnElement="Flow_ToCalibGateway">
         <di:waypoint x="1232" y="777" />
@@ -356,7 +348,7 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_LoopAdjust_di" bpmnElement="Flow_LoopAdjust">
         <di:waypoint x="1205" y="380" />
-        <di:waypoint x="935" y="380" />
+        <di:waypoint x="972" y="380" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_CalibOk_di" bpmnElement="Flow_CalibOk">
         <di:waypoint x="1430" y="752" />
@@ -396,10 +388,10 @@
         <di:waypoint x="2145" y="780" />
         <di:waypoint x="2212" y="780" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1ynnro6_di" bpmnElement="Flow_1ynnro6">
-        <di:waypoint x="1028" y="620" />
-        <di:waypoint x="1028" y="777" />
-        <di:waypoint x="1087" y="777" />
+      <bpmndi:BPMNEdge id="Flow_01gea9x_di" bpmnElement="Flow_01gea9x">
+        <di:waypoint x="927" y="420" />
+        <di:waypoint x="927" y="800" />
+        <di:waypoint x="1087" y="800" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="DataOutputAssociation_1daztfq_di" bpmnElement="DataOutputAssociation_1daztfq">
         <di:waypoint x="2039" y="820" />
