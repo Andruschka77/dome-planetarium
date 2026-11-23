@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Collections;
 
 @Getter
 @Setter
@@ -91,6 +92,11 @@ public class ShowSession {
      * @return статистика качества показа (TelemetryStats)
      */
     public TelemetryStats analyzeSessionTelemetry(List<TelemetryIncident> incidents) {
+
+        if (incidents == null) {
+            incidents = Collections.emptyList();
+        }
+
         if (this.totalExpectedFrames <= 0) {
             return new TelemetryStats(
                     0,
