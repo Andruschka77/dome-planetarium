@@ -1,0 +1,141 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="diag1" name="Алгоритм 1 - verify_cluster_calibration">
+    <mxGraphModel dx="957" dy="664" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="1650" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="n_start" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=50;strokeWidth=1.5;fillColor=none;strokeColor=default;fontFamily=Helvetica;fontSize=12;fontStyle=1;align=center;" value="&lt;span style=&quot;font-weight: normal;&quot;&gt;Начало&lt;/span&gt;" vertex="1">
+          <mxGeometry height="50" width="240" x="465" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="n_in" parent="1" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;strokeWidth=1.5;fillColor=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;align=center;" value="Ввод:&lt;br&gt;projectors_calibration,&lt;br&gt;tolerance_threshold" vertex="1">
+          <mxGeometry height="60" width="260" x="455" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="n_init" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=1.5;fontFamily=Helvetica;fontSize=11;align=center;fillColor=none;strokeColor=#000000;" value="cluster_report = []&lt;br&gt;total_recalibration_needed = 0&lt;br&gt;is_cluster_ready = True" vertex="1">
+          <mxGeometry height="65" width="280" x="445" y="210" as="geometry" />
+        </mxCell>
+        <mxCell id="n_loop1_start" parent="1" style="shape=loopLimit;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;align=center;" value="Цикл i от 0 до&lt;br&gt;len(projectors_calibration) - 1" vertex="1">
+          <mxGeometry height="60" width="220" x="475" y="305" as="geometry" />
+        </mxCell>
+        <mxCell id="n_proj_init" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;align=center;" value="proj_data = projectors_calibration[i]&lt;br&gt;grid_points = proj_data[&#39;grid_points&#39;]&lt;br&gt;points_count = len(grid_points)&lt;br&gt;sum_squared_error = 0.0&lt;br&gt;max_deviation = 0.0" vertex="1">
+          <mxGeometry height="85" width="300" x="435" y="395" as="geometry" />
+        </mxCell>
+        <mxCell id="n_loop2_start" parent="1" style="shape=loopLimit;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;align=center;" value="Цикл j от 0 до&lt;br&gt;points_count - 1" vertex="1">
+          <mxGeometry height="60" width="200" x="485" y="510" as="geometry" />
+        </mxCell>
+        <mxCell id="n_pt_calc" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;align=center;" value="pt = grid_points[j]&lt;br&gt;dx = pt[&#39;actual_x&#39;] - pt[&#39;target_x&#39;]&lt;br&gt;dy = pt[&#39;actual_y&#39;] - pt[&#39;target_y&#39;]&lt;br&gt;dist = sqrt(dx² + dy²)&lt;br&gt;sum_squared_error += dist²" vertex="1">
+          <mxGeometry height="85" width="300" x="435" y="600" as="geometry" />
+        </mxCell>
+        <mxCell id="n_check_max" parent="1" style="rhombus;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;fontStyle=1;align=center;" value="&lt;span style=&quot;font-weight: normal;&quot;&gt;dist &amp;gt; max_deviation&lt;/span&gt;" vertex="1">
+          <mxGeometry height="70" width="220" x="475" y="715" as="geometry" />
+        </mxCell>
+        <mxCell id="n_set_max" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;align=center;" value="max_deviation = dist" vertex="1">
+          <mxGeometry height="50" width="160" x="745" y="725" as="geometry" />
+        </mxCell>
+        <mxCell id="n_loop2_end" parent="1" style="shape=loopLimit;flipV=1;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;align=center;" value="Конец цикла j" vertex="1">
+          <mxGeometry height="55" width="200" x="485" y="825" as="geometry" />
+        </mxCell>
+        <mxCell id="n_calc_rms" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;align=center;" value="rms_error = sqrt(sum_squared_error / points_count)&lt;br&gt;(если points_count == 0, rms_error = 0.0)" vertex="1">
+          <mxGeometry height="60" width="320" x="425" y="910" as="geometry" />
+        </mxCell>
+        <mxCell id="n_check_tol" parent="1" style="rhombus;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;fontStyle=1;align=center;" value="&lt;span style=&quot;font-weight: normal;&quot;&gt;rms_error &amp;gt; tolerance_threshold&lt;/span&gt;" vertex="1">
+          <mxGeometry height="75" width="260" x="455" y="1000" as="geometry" />
+        </mxCell>
+        <mxCell id="n_branch_fail" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;align=center;" value="status = &quot;Требуется юстировка&quot;&lt;br&gt;recalibration_needed = True&lt;br&gt;blend_mask_width = 0&lt;br&gt;total_recalibration_needed += 1&lt;br&gt;is_cluster_ready = False" vertex="1">
+          <mxGeometry height="90" width="240" x="245" y="1105" as="geometry" />
+        </mxCell>
+        <mxCell id="n_branch_ok" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;align=center;" value="status = &quot;В норме&quot;&lt;br&gt;recalibration_needed = False&lt;br&gt;blend_mask_width = int(64 +&lt;br&gt;(tolerance - rms) * 20)" vertex="1">
+          <mxGeometry height="90" width="240" x="685" y="1105" as="geometry" />
+        </mxCell>
+        <mxCell id="n_append" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;align=center;" value="Формирование proj_summary&lt;br&gt;cluster_report.append(proj_summary)" vertex="1">
+          <mxGeometry height="55" width="300" x="435" y="1225" as="geometry" />
+        </mxCell>
+        <mxCell id="n_loop1_end" parent="1" style="shape=loopLimit;flipV=1;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;align=center;" value="Конец цикла i" vertex="1">
+          <mxGeometry height="55" width="220" x="475" y="1310" as="geometry" />
+        </mxCell>
+        <mxCell id="n_ret" parent="1" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;strokeWidth=1.5;fillColor=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;align=center;" value="Возврат результатов:&lt;br&gt;(cluster_report, is_cluster_ready,&lt;br&gt;total_recalibration_needed)" vertex="1">
+          <mxGeometry height="60" width="300" x="435" y="1395" as="geometry" />
+        </mxCell>
+        <mxCell id="n_end" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=50;strokeWidth=1.5;fillColor=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=12;fontStyle=1;align=center;" value="&lt;span style=&quot;font-weight: normal;&quot;&gt;Конец&lt;/span&gt;" vertex="1">
+          <mxGeometry height="50" width="160" x="505" y="1485" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="n_start" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;" target="n_in">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="n_in" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;" target="n_init">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="n_init" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;" target="n_loop1_start">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="n_loop1_start" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;" target="n_proj_init">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="n_proj_init" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;" target="n_loop2_start">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="n_loop2_start" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;" target="n_pt_calc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" edge="1" parent="1" source="n_pt_calc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;" target="n_check_max">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8_yes" edge="1" parent="1" source="n_check_max" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;exitX=1.0;exitY=0.5;entryX=0.0;entryY=0.5;" target="n_set_max" value="Да">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8_no" edge="1" parent="1" source="n_check_max" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;" target="n_loop2_end" value="Нет">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8_set_merge" edge="1" parent="1" source="n_set_max" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;exitX=0.5;exitY=1.0;entryX=1.0;entryY=0.5;" target="n_loop2_end">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="825" y="853" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e9" edge="1" parent="1" source="n_loop2_end" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;" target="n_calc_rms">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e10" edge="1" parent="1" source="n_calc_rms" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;" target="n_check_tol">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e11_yes" edge="1" parent="1" source="n_check_tol" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;exitX=0.0;exitY=0.5;entryX=0.5;entryY=0.0;" target="n_branch_fail" value="Да">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="365" y="1038" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e11_no" edge="1" parent="1" source="n_check_tol" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;exitX=1.0;exitY=0.5;entryX=0.5;entryY=0.0;" target="n_branch_ok" value="Нет">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="805" y="1038" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e12_fail_merge" edge="1" parent="1" source="n_branch_fail" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;exitX=0.5;exitY=1.0;entryX=0.0;entryY=0.5;" target="n_append">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="365" y="1253" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e12_ok_merge" edge="1" parent="1" source="n_branch_ok" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;exitX=0.5;exitY=1.0;entryX=1.0;entryY=0.5;" target="n_append">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="805" y="1253" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e13" edge="1" parent="1" source="n_append" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;" target="n_loop1_end">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e14" edge="1" parent="1" source="n_loop1_end" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;" target="n_ret">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e15" edge="1" parent="1" source="n_ret" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;" target="n_end">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

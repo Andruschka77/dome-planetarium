@@ -1,0 +1,240 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="diag2" name="Алгоритм 2 - analyze_session_telemetry">
+    <mxGraphModel dx="1387" dy="962" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="1850" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="m_start" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=50;strokeWidth=1.5;fillColor=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=12;fontStyle=1;align=center;" value="&lt;span style=&quot;font-weight: normal;&quot;&gt;Начало&lt;/span&gt;" vertex="1">
+          <mxGeometry height="50" width="240" x="465" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="m_in" parent="1" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;strokeWidth=1.5;fillColor=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;align=center;" value="Ввод:&lt;br&gt;telemetry_logs,&lt;br&gt;total_expected_frames" vertex="1">
+          <mxGeometry height="60" width="260" x="455" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="m_check_frames" parent="1" style="rhombus;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;fontStyle=1;align=center;" value="&lt;span style=&quot;font-weight: normal;&quot;&gt;total_expected_frames &amp;lt;= 0&lt;/span&gt;" vertex="1">
+          <mxGeometry height="70" width="240" x="465" y="210" as="geometry" />
+        </mxCell>
+        <mxCell id="m_err_ret" parent="1" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;strokeWidth=1.5;fillColor=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;align=center;" value="Возврат словаря с ошибкой:&lt;br&gt;session_verdict = &quot;Некорректная&lt;br&gt;длительность сеанса&quot;" vertex="1">
+          <mxGeometry height="60" width="240" x="785" y="215" as="geometry" />
+        </mxCell>
+        <mxCell id="m_init" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;align=center;" value="hw_overheat_count = 0&lt;br&gt;sync_jitter_count = 0&lt;br&gt;decoder_error_count = 0&lt;br&gt;total_dropped_frames = 0" vertex="1">
+          <mxGeometry height="75" width="280" x="445" y="315" as="geometry" />
+        </mxCell>
+        <mxCell id="m_loop_start" parent="1" style="shape=loopLimit;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;align=center;" value="Цикл k от 0 до&lt;br&gt;len(telemetry_logs) - 1" vertex="1">
+          <mxGeometry height="60" width="240" x="465" y="420" as="geometry" />
+        </mxCell>
+        <mxCell id="m_entry" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;align=center;" value="log_entry = telemetry_logs[k]&lt;br&gt;total_dropped_frames += log_entry[&#39;dropped_frames&#39;]&lt;br&gt;event_type = log_entry[&#39;type&#39;]" vertex="1">
+          <mxGeometry height="65" width="320" x="425" y="510" as="geometry" />
+        </mxCell>
+        <mxCell id="m_check_hw" parent="1" style="rhombus;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;fontStyle=1;align=center;" value="&lt;span style=&quot;font-weight: normal;&quot;&gt;event_type == &quot;thermal_warning&quot;&lt;/span&gt;" vertex="1">
+          <mxGeometry height="70" width="280" x="445" y="605" as="geometry" />
+        </mxCell>
+        <mxCell id="m_inc_hw" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;align=center;" value="hw_overheat_count += 1" vertex="1">
+          <mxGeometry height="50" width="180" x="225" y="615" as="geometry" />
+        </mxCell>
+        <mxCell id="m_check_sync" parent="1" style="rhombus;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;fontStyle=1;align=center;" value="&lt;span style=&quot;font-weight: normal;&quot;&gt;event_type == &quot;sync_jitter&quot;&lt;/span&gt;" vertex="1">
+          <mxGeometry height="70" width="260" x="455" y="705" as="geometry" />
+        </mxCell>
+        <mxCell id="m_inc_sync" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;align=center;" value="sync_jitter_count += 1" vertex="1">
+          <mxGeometry height="50" width="180" x="225" y="715" as="geometry" />
+        </mxCell>
+        <mxCell id="m_inc_dec" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;align=center;" value="decoder_error_count += 1" vertex="1">
+          <mxGeometry height="50" width="180" x="785" y="715" as="geometry" />
+        </mxCell>
+        <mxCell id="m_loop_end" parent="1" style="shape=loopLimit;flipV=1;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;align=center;" value="Конец цикла k" vertex="1">
+          <mxGeometry height="55" width="240" x="465" y="810" as="geometry" />
+        </mxCell>
+        <mxCell id="m_calc_total" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;align=center;" value="total_incidents = len(telemetry_logs)" vertex="1">
+          <mxGeometry height="45" width="280" x="445" y="895" as="geometry" />
+        </mxCell>
+        <mxCell id="m_check_inc" parent="1" style="rhombus;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;fontStyle=1;align=center;" value="&lt;span style=&quot;font-weight: normal;&quot;&gt;total_incidents &amp;gt; 0&lt;/span&gt;" vertex="1">
+          <mxGeometry height="70" width="240" x="465" y="970" as="geometry" />
+        </mxCell>
+        <mxCell id="m_ratios_yes" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;align=center;" value="hw_ratio = hw_overheat_count / total_incidents&lt;br&gt;sync_ratio = sync_jitter_count / total_incidents&lt;br&gt;sw_ratio = decoder_error_count / total_incidents" vertex="1">
+          <mxGeometry height="65" width="310" x="205" y="1070" as="geometry" />
+        </mxCell>
+        <mxCell id="m_ratios_no" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;align=center;" value="hw_ratio = 0.0&lt;br&gt;sync_ratio = 0.0&lt;br&gt;sw_ratio = 0.0" vertex="1">
+          <mxGeometry height="65" width="220" x="665" y="1070" as="geometry" />
+        </mxCell>
+        <mxCell id="m_stab" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;align=center;" value="dropped_rate = (total_dropped_frames / total_expected_frames) * 100&lt;br&gt;stability_index = max(0.0, 100.0 - dropped_rate - total_incidents * 0.5)" vertex="1">
+          <mxGeometry height="65" width="400" x="385" y="1165" as="geometry" />
+        </mxCell>
+        <mxCell id="m_check_stab1" parent="1" style="rhombus;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;fontStyle=1;align=center;" value="&lt;span style=&quot;font-weight: normal;&quot;&gt;stability_index &amp;gt;= 98.0&lt;/span&gt;" vertex="1">
+          <mxGeometry height="70" width="240" x="465" y="1260" as="geometry" />
+        </mxCell>
+        <mxCell id="m_verd_exc" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;align=center;" value="verdict = &quot;Показ эталонного качества&quot;" vertex="1">
+          <mxGeometry height="50" width="230" x="195" y="1360" as="geometry" />
+        </mxCell>
+        <mxCell id="m_check_stab2" parent="1" style="rhombus;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;fontStyle=1;align=center;" value="&lt;span style=&quot;font-weight: normal;&quot;&gt;stability_index &amp;gt;= 90.0&lt;/span&gt;" vertex="1">
+          <mxGeometry height="70" width="240" x="645" y="1335" as="geometry" />
+        </mxCell>
+        <mxCell id="m_verd_good" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;align=center;" value="verdict = &quot;Показ удовлетворительного качества&quot;" vertex="1">
+          <mxGeometry height="50" width="250" x="460" y="1435" as="geometry" />
+        </mxCell>
+        <mxCell id="m_verd_crit" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;align=center;" value="verdict = &quot;Сеанс с критическими сбоями&quot;" vertex="1">
+          <mxGeometry height="50" width="240" x="775" y="1435" as="geometry" />
+        </mxCell>
+        <mxCell id="m_build_res" parent="1" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=1.5;fillColor=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;align=center;" value="Формирование словаря result:&lt;br&gt;{total_incidents, total_dropped_frames, dropped_frame_rate,&lt;br&gt;stability_index, hw_ratio, sync_ratio, sw_ratio, verdict}" vertex="1">
+          <mxGeometry height="70" width="400" x="385" y="1525" as="geometry" />
+        </mxCell>
+        <mxCell id="m_ret" parent="1" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;strokeWidth=1.5;fillColor=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=11;align=center;" value="Возврат result" vertex="1">
+          <mxGeometry height="50" width="200" x="485" y="1625" as="geometry" />
+        </mxCell>
+        <mxCell id="m_end" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=50;strokeWidth=1.5;fillColor=none;strokeColor=#000000;fontFamily=Helvetica;fontSize=12;fontStyle=1;align=center;" value="&lt;span style=&quot;font-weight: normal;&quot;&gt;Конец&lt;/span&gt;" vertex="1">
+          <mxGeometry height="50" width="160" x="505" y="1705" as="geometry" />
+        </mxCell>
+        <mxCell id="em1" edge="1" parent="1" source="m_start" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;" target="m_in">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="em2" edge="1" parent="1" source="m_in" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;" target="m_check_frames">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="em3_yes" edge="1" parent="1" source="m_check_frames" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;exitX=1.0;exitY=0.5;entryX=0.0;entryY=0.5;" target="m_err_ret" value="Да">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="em3_no" edge="1" parent="1" source="m_check_frames" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;" target="m_init" value="Нет">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="em4_err_to_end" edge="1" parent="1" source="m_err_ret" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;exitX=1.0;exitY=0.5;entryX=1.0;entryY=0.5;" target="m_end">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1055" y="245" />
+              <mxPoint x="1055" y="1730" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="em5" edge="1" parent="1" source="m_init" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;" target="m_loop_start">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="em6" edge="1" parent="1" source="m_loop_start" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;" target="m_entry">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="em7" edge="1" parent="1" source="m_entry" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;" target="m_check_hw">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="em8_hw_yes" edge="1" parent="1" source="m_check_hw" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;exitX=0.0;exitY=0.5;entryX=1.0;entryY=0.5;" target="m_inc_hw" value="Да">
+          <mxGeometry relative="1" x="-0.25" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="em8_hw_no" edge="1" parent="1" source="m_check_hw" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;" target="m_check_sync" value="Нет">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="em9_sync_yes" edge="1" parent="1" source="m_check_sync" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;exitX=0.0;exitY=0.5;entryX=1.0;entryY=0.5;" target="m_inc_sync" value="Да">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="em9_sync_no" edge="1" parent="1" source="m_check_sync" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;exitX=1.0;exitY=0.5;entryX=0.0;entryY=0.5;" target="m_inc_dec" value="Нет">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="em10_hw_to_loop_end" edge="1" parent="1" source="m_inc_hw" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;exitX=0.5;exitY=1.0;entryX=0.0;entryY=0.5;" target="m_loop_end">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="315" y="837" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="em10_sync_to_loop_end" edge="1" parent="1" source="m_inc_sync" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;exitX=0.5;exitY=1.0;entryX=0.0;entryY=0.5;" target="m_loop_end">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="315" y="837" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="em10_dec_to_loop_end" edge="1" parent="1" source="m_inc_dec" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;exitX=0.5;exitY=1.0;entryX=1.0;entryY=0.5;" target="m_loop_end">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="875" y="837" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="em11" edge="1" parent="1" source="m_loop_end" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;" target="m_calc_total">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="em12" edge="1" parent="1" source="m_calc_total" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;" target="m_check_inc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="em13_yes" edge="1" parent="1" source="m_check_inc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;exitX=0.0;exitY=0.5;entryX=0.5;entryY=0.0;" target="m_ratios_yes" value="Да">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="360" y="1005" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="em13_no" edge="1" parent="1" source="m_check_inc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;exitX=1.0;exitY=0.5;entryX=0.5;entryY=0.0;" target="m_ratios_no" value="Нет">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="775" y="1005" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="em14_yes_merge" edge="1" parent="1" source="m_ratios_yes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;exitX=0.5;exitY=1.0;entryX=0.25;entryY=0.0;" target="m_stab">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="360" y="1150" />
+              <mxPoint x="485" y="1150" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="em14_no_merge" edge="1" parent="1" source="m_ratios_no" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;exitX=0.5;exitY=1.0;entryX=0.75;entryY=0.0;" target="m_stab">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="775" y="1150" />
+              <mxPoint x="685" y="1150" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="em15" edge="1" parent="1" source="m_stab" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;" target="m_check_stab1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="em16_yes" edge="1" parent="1" source="m_check_stab1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;exitX=0.0;exitY=0.5;entryX=0.5;entryY=0.0;" target="m_verd_exc" value="Да">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="310" y="1295" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="em16_no" edge="1" parent="1" source="m_check_stab1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;exitX=1.0;exitY=0.5;entryX=0.5;entryY=0.0;" target="m_check_stab2" value="Нет">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="765" y="1295" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="em17_good" edge="1" parent="1" source="m_check_stab2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;exitX=0.0;exitY=0.5;entryX=0.5;entryY=0.0;" target="m_verd_good" value="Да">
+          <mxGeometry relative="1" x="0.44" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="em17_crit" edge="1" parent="1" source="m_check_stab2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;exitX=1.0;exitY=0.5;entryX=0.5;entryY=0.0;" target="m_verd_crit" value="Нет">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="895" y="1370" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="em18_exc_merge" edge="1" parent="1" source="m_verd_exc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;exitX=0.5;exitY=1.0;entryX=0.0;entryY=0.5;" target="m_build_res">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="310" y="1560" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="em18_good_merge" edge="1" parent="1" source="m_verd_good" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;" target="m_build_res">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="em18_crit_merge" edge="1" parent="1" source="m_verd_crit" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;exitX=0.5;exitY=1.0;entryX=1.0;entryY=0.5;" target="m_build_res">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="895" y="1560" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="em19" edge="1" parent="1" source="m_build_res" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;" target="m_ret">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="em20" edge="1" parent="1" source="m_ret" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=1.5;strokeColor=#333333;endArrow=classic;endFill=1;" target="m_end">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
