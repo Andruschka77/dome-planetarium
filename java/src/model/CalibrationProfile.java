@@ -5,6 +5,7 @@ import lombok.Setter;
 import service.CalibrationRule;
 import java.util.ArrayList;
 import java.util.List;
+import service.StandardBlendRuleImpl;
 
 @Getter
 @Setter
@@ -98,6 +99,10 @@ public class CalibrationProfile {
             double toleranceThreshold,
             CalibrationRule rule
     ) {
+
+        if (rule == null) {
+            rule = new StandardBlendRuleImpl();
+        }
 
         List<ProjectorResult> results = new ArrayList<>();
         int totalRecalibrationNeeded = 0;
