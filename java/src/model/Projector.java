@@ -21,8 +21,10 @@ public class Projector {
 
     // Аппаратный статус (заполняется перед диагностикой)
     private boolean poweredOn;
-    private double  laserTempCelsius;
+    private double laserTempCelsius;
     private boolean mediaServerLink;
+
+    public static final double MAX_LASER_TEMP_CELSIUS = 70.0;
 
     public Projector(
             int idProjector,
@@ -35,15 +37,15 @@ public class Projector {
             String ipAddress,
             String status
     ) {
-        this.idProjector     = idProjector;
-        this.hall            = hall;
-        this.model           = model;
-        this.serialNumber    = serialNumber;
+        this.idProjector = idProjector;
+        this.hall = hall;
+        this.model = model;
+        this.serialNumber = serialNumber;
         this.resolutionWidth = resolutionWidth;
-        this.resolutionHeight= resolutionHeight;
-        this.maxLumens       = maxLumens;
-        this.ipAddress       = ipAddress;
-        this.status          = status;
+        this.resolutionHeight = resolutionHeight;
+        this.maxLumens = maxLumens;
+        this.ipAddress = ipAddress;
+        this.status = status;
     }
 
     /**
@@ -56,7 +58,7 @@ public class Projector {
     public static List<Integer> checkProjectorsReadiness(List<Projector> projectors) {
         List<Integer> notReadyIds = new ArrayList<>();
         for (Projector p : projectors) {
-            if (!p.isPoweredOn() || p.getLaserTempCelsius() >= 70 || !p.isMediaServerLink()) {
+            if (!p.isPoweredOn() || p.getLaserTempCelsius() >= MAX_LASER_TEMP_CELSIUS || !p.isMediaServerLink()) {
                 notReadyIds.add(p.getIdProjector());
             }
         }
